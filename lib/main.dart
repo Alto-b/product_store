@@ -15,18 +15,26 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => PostBloc(ProductsRepo()),
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Product Store',
-        theme: ThemeData(
-          // colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          useMaterial3: true,
-          brightness: Brightness.dark
+    return MultiBlocProvider(
+        providers: [
+            BlocProvider(
+          create: (context) => PostBloc(ProductsRepo()),
+    
         ),
-        home: const HomePage(),
-                ),
+            BlocProvider(
+                create: (context) => FetchBloc(ProductsRepo()),
+            ),
+        ],
+              child: MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'Product Store',
+            theme: ThemeData(
+              // colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+              useMaterial3: true,
+              brightness: Brightness.dark
+            ),
+            home: const HomePage(),
+                    ),
     );
   }
 }

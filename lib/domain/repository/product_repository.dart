@@ -47,7 +47,7 @@ class ProductsRepo{
   }
 //////////////////////////////////////////////////////////
     
-    Future<void> addProduct(String title,String description,String category,String image,num price)async{
+    Future<void> addProduct(String title,String description,num price,String category,String image)async{
       final body={
         "title":title,
         "price":price,

@@ -9,7 +9,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
   ProductsRepo rep;
   PostBloc(this.rep) : super(PostInitial()) {
     on<AddEvent>((event, emit) {
-      rep.addProduct(event.title, event.description, event.category, event.image, event.price);
+      rep.addProduct(event.title, event.description, event.price,event.category, event.image);
     });
   }
 }

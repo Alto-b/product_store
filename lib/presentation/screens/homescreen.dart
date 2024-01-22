@@ -1,5 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:product_store/application/product_bloc/fetch_bloc/fetch_bloc.dart';
+import 'package:product_store/application/product_bloc/post_bloc/post_bloc.dart';
+import 'package:product_store/domain/model/product_model.dart';
+import 'package:product_store/domain/repository/product_repository.dart';
+import 'package:product_store/presentation/screens/add_page.dart';
+import 'package:product_store/presentation/widgets/appbar.dart';
+import 'package:product_store/presentation/widgets/product_builder.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -8,71 +16,64 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
-    return Scaffold(
-      appBar: PreferredSize( preferredSize: Size(150, 140),child: HomePageAppBar(screenHeight: screenHeight)),
 
-      body: Center(
-        child: Column(
-          children: [
-            const SizedBox(height: 10,),
-            Container(
-              // color: Colors.blue,
-              height: screenHeight-180,
-              width: screenWidth-10,
-              child: GridView.builder(
-                itemCount: 8,
-
-                itemBuilder: (context, index) {
-                  return Card(  
-                    color: Colors.black87,
-                    elevation: 5,
-                      child: Container(
-                        decoration: const BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(30)),
-                          image: DecorationImage(image: NetworkImage('https://c.static-nike.com/a/images/f_auto/dpr_3.0,cs_srgb/h_500,c_limit/g1ljiszo4qhthfpluzbt/123-joyride-cdp-apla-xa-xp.jpg',),
-                          fit: BoxFit.cover)
-                          
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          // crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Title(color: Colors.white, child:  Text("title",style: titleStyle(),)),
-                            Title(color: Colors.white, child:  Text("description",style: titleStyle(),)),
-                          ],
-                        ),
-                      ),
-                  );
-                }, gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2,crossAxisSpacing: 3,mainAxisSpacing: 3),
-                ),
-            )
-          ],
+    return MultiBlocProvider(
+        providers: [
+            BlocProvider(
+          create: (context) => FetchBloc(ProductsRepo())..add(FetchLoadedEvent()),
+    
         ),
-      ),
+            BlocProvider(
+                create: (context) => PostBloc(ProductsRepo()),
+            ),
+        ],
+              child: Scaffold(
+              appBar: PreferredSize( preferredSize: Size(150, 80),child: HomePageAppBar(screenHeight: screenHeight)),
+        
+              body: SingleChildScrollView(
+                child: Center(
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 10,),
+                  
+                      BlocBuilder<FetchBloc, FetchState>(
+                        builder: (context, state) {
+                          print(state);
+                          if(state is FetchLoadingState){
+                            return const Center(child: CircularProgressIndicator());
+                          }
+                          else if(state is FetchLoadedState){
+                            List<ProductsModel> list = state.productList;
+                            return HomePageContainer(screenHeight, screenWidth,list);
+                            
+                          }
+                          else{
+                            return Container(child: Icon(Icons.error),);
+                          }
+                          
+                        },
+                      )
+                    ],
+                  ),
+                ),
+              ),
+    
+              floatingActionButton: FloatingActionButton(onPressed: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context) => AddPage(screenHeight: screenHeight),));
+              },
+                mini: true,
+                backgroundColor: Colors.black87,
+                splashColor: Colors.grey,
+                child: const Icon(Icons.add,size: 30,fill: 1,color: Colors.white,),),
+              floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+              
+            ),
     );
+
+    
   }
 
-  TextStyle titleStyle() => GoogleFonts.aBeeZee(color: Colors.black,fontSize: 20,fontWeight: FontWeight.w700,backgroundColor: Colors.white60);
+
+  
 }
 
-class HomePageAppBar extends StatelessWidget {
-  const HomePageAppBar({
-    super.key,
-    required this.screenHeight,
-  });
-
-  final double screenHeight;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppBar(
-      backgroundColor: Colors.blueAccent.withOpacity(0.9),
-      title: const Text("Product Store"),
-      toolbarOpacity: 0.3,
-      toolbarHeight: screenHeight-650,
-      titleTextStyle: GoogleFonts.orbitron(fontSize: 25,fontWeight: FontWeight.w700,letterSpacing: 10),
-      centerTitle: true,
-      
-    );
-  }
-}

@@ -8,7 +8,8 @@ sealed class FetchState extends Equatable {
 }
 
 final class FetchLoadingState extends FetchState {
-  
+  @override
+  List<Object> get props => [];
 }
 
 final class FetchLoadedState extends FetchState{

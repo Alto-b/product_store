@@ -10,9 +10,11 @@ class FetchBloc extends Bloc<FetchEvent, FetchState> {
   ProductsRepo rep;
   FetchBloc(this.rep) : super(FetchLoadingState()) {
     on<FetchLoadedEvent>((event, emit) async{
+      
       emit(FetchLoadingState());
       try{
         final prod = await rep.getAllProducts();
+        print("{ products : $prod}");
         emit(FetchLoadedState(prod));
       }
       catch(e){
